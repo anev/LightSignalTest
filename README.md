@@ -1,15 +1,13 @@
 ##### Requirements
 
-You need  `git` and `docker` to run the application. 
+You need  `git` and `docker 1.4` to run the application. 
 Alternatively you can use `python 2.7` and run `Light.py` by your own.
-
-You need `python 2.7` to run tests.
 
 Task described [here](http://machinezone.ru/challenges/traffic-light)
 
 ##### Preparing service
  
- Install `git` and `docker` on and run those commands
+ Install `git` and `docker 1.4` on and run those commands
  
 ```
 git clone https://github.com/anev/LightSignalTest.git # clone the repo
@@ -30,4 +28,7 @@ To start service after stopping use `docker start anev-light`
 
 ##### Runing tests
 
-`python Tests.py`
+Service shoul be running, you can run tests with `docker exec anev-light python Tests.py` command.
+
+Alternatevely you can install `python 2.7` with `flask` and run `python Tests.py`.
+
