@@ -27,8 +27,6 @@ def ovservation():
         parsed = json.loads(request.data.replace("'", "\""))
         checkFormat(parsed)
     except Exception as e:
-        print sys.exc_info()[0]
-        print traceback.format_exc()
         return error('Invalid input data')
 
     try:
@@ -41,8 +39,6 @@ def ovservation():
         else:
             return error('The sequence isn\'t found')
     except Exception, err:
-        print sys.exc_info()[0]
-        print traceback.format_exc()
         return error('Internal server error')
 
 
