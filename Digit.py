@@ -45,12 +45,16 @@ class Digit:
         self.current = 0
         step = len(self.assumed)
 
-        self.analyzeBroken()
+        result = []
 
         if (self.changed and self.accordingToPrev(step % 10, step)):
-            return [step % 10]
+            result = [step % 10]
         elif (self.changed == False and self.accordingToPrev(step / 10, step)):
-            return [step / 10]
+            result = [step / 10]
+
+        self.assumed.append(result)
+        self.analyzeBroken(True)
+        return result
 
 
     def accordingToPrev(self, assumedStart, step):
@@ -95,35 +99,35 @@ class Digit:
         self.assumed.append(result)
         return result
 
-    def analyzeBroken(self):
+    def analyzeBroken(self, stopped=False):
         # inheritance ?
         if (self.firstOrder):
-            self.analyzeBroken1()
+            self.analyzeBroken1(stopped)
         else:
-            self.analyzeBroken2()
+            self.analyzeBroken2(stopped)
 
-    def analyzeBroken2(self):
-        weKnowTheStart = len(self.assumed) > 0 and len(self.assumed[-1]) == 1
+    def analyzeBroken2(self, stopped=False):
+        weKnowTheStart = stopped or (len(self.assumed) > 0 and len(self.assumed[-1]) == 1)
         if (weKnowTheStart == False):
             return
 
         stepsBack = len(self.assumed) - 1
         shouldLight = 0
 
-        for i in range(0, min(stepsBack / 10, 9)):
+        for i in range(0, min(stepsBack / 10, 9) + 1):
             shouldLight = shouldLight | self.DIGITS_BIN[i]
 
         self.broken = shouldLight ^ self.working
 
-    def analyzeBroken1(self):
-        weKnowStart = len(self.assumed) > 0 and len(self.assumed[-1]) == 1
+    def analyzeBroken1(self, stopped=False):
+        weKnowStart = stopped or (len(self.assumed) > 0 and len(self.assumed[-1]) == 1)
         if (weKnowStart == False):
             return
 
-        stepsBack = len(self.assumed) - 1
+        stepsBack = len(self.assumed)
         shouldLight = 0
 
-        for i in range(0, min(stepsBack / self.order, 9)):
+        for i in range(1, min(stepsBack, 9)):
             shouldLight = shouldLight | self.DIGITS_BIN[i]
 
         self.broken = shouldLight ^ self.working
@@ -134,8 +138,7 @@ class Panel:
         self.digit1 = Digit(order=2)
         self.digit2 = Digit(order=1)
         self.stopped = False
-        self.starts = []
-
+        self.combination = []
 
     def analyze(self, observation):
 
@@ -144,6 +147,12 @@ class Panel:
 
         if (observation['color'] == 'red'):
             self.stopped = True
+
+            if (len(self.combination) == 0):
+                return {
+                    'status': 'error',
+                    'msg': "There isn't enough data"
+                }
 
             self.combine(self.digit1.stop(), self.digit2.stop())
 

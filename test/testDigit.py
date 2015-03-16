@@ -65,3 +65,10 @@ class TestDigit(unittest.TestCase):
         self.assertEqual(
             [8, 9, 98, 99],
             panel.combine([0, 9], [8, 9]))
+
+    def test_missed(self):
+        digit1 = Digit(1)
+        digit1.analyze('0010000')
+        self.assertEquals([1], digit1.stop())
+
+        self.assertEquals(2, digit1.broken)

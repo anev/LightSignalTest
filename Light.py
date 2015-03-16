@@ -1,7 +1,8 @@
 from flask import Flask
 import uuid
 import json
-from Digit import Panel, Digit
+import flask
+from Digit import Panel
 from flask import request
 import cPickle as pickle
 import os
@@ -35,18 +36,23 @@ def ovservation():
         if parsed['sequence'] in sess:
             res = sess[parsed['sequence']].analyze(parsed['observation'])
             save(parsed['sequence'])
-            return prepAns(json.dumps(res))
+            return prepAns(res)
         else:
             return error('The sequence isn\'t found')
     except Exception, err:
         return error('Internal server error')
 
+def checkDir(dir):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
 
 def save(sessId):
+    checkDir(DATA_DIR)
     pickle.dump(sess[sessId], open(DATA_DIR + '/' + sessId, "wb"))
 
 
 def load():
+    checkDir(DATA_DIR)
     for file in os.listdir(DATA_DIR):
         sess[file] = pickle.load(open(DATA_DIR + '/' + file, "rb"))
 
@@ -80,7 +86,7 @@ def sequence():
     save(sessId)
     print '> Sequence [', sessId, '] created.'
     seq_resp = {'status': 'ok', 'response': {'sequence': sessId}}
-    return prepAns(json.dumps(seq_resp))
+    return prepAns(seq_resp)
 
 
 @app.route("/clear", methods=['GET'])
@@ -94,15 +100,15 @@ def clear():
         except Exception, e:
             print e
     print '> All data cleared.'
-    return prepAns(json.dumps({'status': 'ok', 'response': 'ok'}))
+    return prepAns({'status': 'ok', 'response': 'ok'})
 
 
 def error(msg):
-    return prepAns(json.dumps({'status': 'error', 'msg': msg}))
+    return flask.jsonify({'status': 'error', 'msg': msg})
 
 
-def prepAns(json):
-    return json.replace("\"", "'")
+def prepAns(dict):
+    return flask.jsonify(dict)
 
 
 if __name__ == "__main__":
